@@ -1,7 +1,5 @@
 from rest_framework.exceptions import APIException
 from rest_framework import permissions, status
-from rest_framework.response import Response
-from rest_framework.exceptions import _get_error_details
 from .models import UserAuthTime
 
 
@@ -13,7 +11,7 @@ class TooManyDevicesLoggedIn(APIException):
 
 class DeactiveAccountException(APIException):
     status_code = 420
-    default_detail = "Your account has been blocked. Please contact GangUPP Support for assistance"
+    default_detail = "Your account has been blocked. Please contact Support for assistance"
     default_code = 'permission_denied'
 
 

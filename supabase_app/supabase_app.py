@@ -1,6 +1,7 @@
-from .settings import SUPABASE_CONFIG
 from django.core.exceptions import ImproperlyConfigured
-import supabase
+from supabase import create_client, Client
+
+from .settings import SUPABASE_CONFIG
 
 SUPABASE_JWT_SECRET = SUPABASE_CONFIG['SUPABASE_JWT_SECRET']
 SUPABASE_URL = SUPABASE_CONFIG['SUPABASE_URL']
@@ -16,4 +17,6 @@ if not SUPABASE_SERVICE_ROLE_KEY:
     raise ImproperlyConfigured('you must set SUPABASE_SERVICE_ROLE_KEY')
 
 # Initialize the Supabase client
-supabase_app = supabase.create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+

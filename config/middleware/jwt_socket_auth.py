@@ -1,10 +1,12 @@
 # Create custom JWTAuth for web socket authentication
 
 import jwt
+from django.contrib.auth import get_user_model
+
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 
-from users.filters import User
+User = get_user_model()
 
 @database_sync_to_async
 def get_user(user_id):

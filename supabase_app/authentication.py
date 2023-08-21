@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from rest_framework import authentication
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
-
-# from .supabase_app import supabase_app
+import json
+from django.conf import settings
+from .supabase_app import supabase
 
 User = get_user_model()
 
@@ -34,23 +35,23 @@ class SupabaseAuthentication(authentication.BaseAuthentication):
             raise AuthenticationFailed(msg)
 
         try:
-            supabase_token = auth[1].decode()
+            jwt_token = auth[1].decode()
         except UnicodeError:
             msg = 'Invalid token header. Token string should not contain invalid characters.'
             raise AuthenticationFailed(msg)
 
-        return self.authenticate_credentials(supabase_token)
+        return self.authenticate_credentials(jwt_token)
 
-    def authenticate_credentials(self, supabase_token):
+    def authenticate_credentials(self, jwt_token):
         try:
-            decoded_token = jwt.decode(supabase_token, self.supabase_secret_key, algorithms=['HS256'])
+            decoded_token = jwt.decode(jwt_token, settings.SUPABASE_CONFIG['SUPABASE_JWT_SECRET'], algorithms=['HS256'], audience="authenticated")
         except jwt.ExpiredSignatureError:
             msg = 'The Supabase token has expired.'
             raise AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
             msg = 'The Supabase token is invalid.'
             raise AuthenticationFailed(msg)
-
+        
         user_id = decoded_token.get('sub')
 
         if not user_id:
@@ -63,11 +64,11 @@ class SupabaseAuthentication(authentication.BaseAuthentication):
         # If a new user was created, you may want to set additional fields
         except User.DoesNotExist:
             # Fetch the user's details from the database
-            result = supabase_app.from_('auth.users').select('*').eq('id', user_id).execute()
-            supabase_user = result['data'][0]
+            result = json.loads(supabase.auth.get_user(jwt_token).json())
             user = User.objects.create_user(
-                uid=user_id,
-                email=supabase_user['email'],
+                uid=result["user"]["id"],
+                email=result['user']['email'],
+                phone_number=result['user']['phone'],
             )
 
         return (user, decoded_token)

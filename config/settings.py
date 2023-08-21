@@ -103,10 +103,9 @@ INSTALLED_APPS = [
     'channels',
     'import_export_celery',
     
-
     # local
     'users.apps.UsersConfig',
-    'supabase.apps.SupabaseConfig',
+    'supabase_app.apps.SupabaseConfig',
 
 ]
 
@@ -156,26 +155,32 @@ FCM_DJANGO_SETTINGS = {
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': '',
-    },
-    #TODO: Update this if required
-    'write': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': '',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': '',
+#     },
+#     #TODO: Update this if required
+#     'write': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': '',
+#     }
+# }
 
+DATABASES = {
+    "default": {
+        "ENGINE": 'django.db.backends.sqlite3',
+        "NAME": os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+ }
 
 # AWS S3 Storage
 
@@ -202,8 +207,8 @@ DATABASES = {
 # STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_STORAGE = 'config.storage_backends.StaticStorage'
-DEFAULT_FILE_STORAGE = 'config.storage_backends.MediaStorage' 
+# STATICFILES_STORAGE = 'config.storage_backends.StaticStorage'
+# DEFAULT_FILE_STORAGE = 'config.storage_backends.MediaStorage' 
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -235,24 +240,20 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'supabase.authentication.SupabaseAuthentication',
+        'supabase_app.authentication.SupabaseAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'users.permissions.LimitUserDevices',
-        'users.permissions.DeactivateUserPermission',
+        # 'users.permissions.LimitUserDevices',
+        # 'users.permissions.DeactivateUserPermission',
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'config.pagination.PageNumberPagination',
     'PAGE_SIZE': env('PAGE_SIZE'),
-    'DEFAULT_RENDERER_CLASSES': [
-        'config.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework.renderers.AdminRenderer',
-    ],
+
 }
 
 # Djoser Users Auth
@@ -267,7 +268,7 @@ DJOSER = {
     'PERMISSIONS': {
          'user': [
              'djoser.permissions.CurrentUserOrAdminOrReadOnly',
-             'users.permissions.LimitUserDevices',
+            #  'users.permissions.LimitUserDevices',
          ]
      }
 }
